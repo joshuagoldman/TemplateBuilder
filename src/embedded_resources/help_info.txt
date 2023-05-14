@@ -1,0 +1,48 @@
+----------------------------------------------------------------------
+
+                        CREATE NEW TEMPLATE
+
+----------------------------------------------------------------------
+
+new [TEMPLATE NAME]
+
+
+General explaination:
+
+    Command for creating a new template with template name [TEMPLATE NAME]
+
+Arguments explaination:
+
+----------------------------------------------------------------------
+
+                        ADD NEW METHOD
+
+----------------------------------------------------------------------
+
+add -c [CONTROLLER NAME] -s [SERVICE NAME] -m [METHOD NAME] -t [TYPE: sp/if/dq] -rt [REQ TYPE: GET/POST]
+
+
+General explaination:
+
+    Command used for when it is desirable to add code for
+    a stored procedure/IF/Database queries.
+
+Arguments explaination:
+
+    -c: Required value. If controller already exists, the existing controller is
+    to be used, otherwise a new controller file will be created.
+
+    -s: Required value. If service already exists, the existing service is
+    to be used, otherwise a new service file will be created.
+
+    -m: Required value. If the method already exists, the will be a choice
+    to override the existing one.
+
+    -t: Choose between action type sp (Stored Procedure), if (IF), or
+    dq (Database queries). If no argument value is provided,
+    the type is automatically chosen as sp (Stored Procedure)
+    
+    -rt: Choose between request type GET/POST. If no argument value is provided,
+    the type is automatically chosen as GET.
+
+
