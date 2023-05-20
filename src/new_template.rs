@@ -5,21 +5,26 @@ use regex::Regex;
 use std::fs;
 
 pub fn change_file_content(f_info: ChangeFileInfo, state: NewTemplateModel) -> TemplateBuildResult<(), NewTemplateModel, String> {
-    match Regex::new(f_info.search_pattern.as_str()) {
-        Ok(re) => {
-            let mut new_content = f_info.file_info.content.clone();
-            for match_val in re.find_iter(f_info.file_info.content.as_str()) {
-                let match_val_to_replace = match_val.as_str().replace("WebApiTemplate", state.name.as_str());
-                new_content = new_content.replace(match_val.as_str(), match_val_to_replace.as_str());  
-            }
+    for change_info in f_info.clone().change_infos {
+        let f_info = f_info.clone();
+        match Regex::new(change_info.search_pattern.as_str()) {
+            Ok(re) => {
+                let mut new_content = f_info.file_info.content.clone();
+                for match_val in re.find_iter(f_info.file_info.content.as_str()) {
+                    let match_val_to_replace = match_val.as_str().replace("WebApiTemplate", state.name.as_str());
+                    new_content = new_content.replace(match_val.as_str(), match_val_to_replace.as_str());  
+                }
 
-            match std::fs::write(f_info.file_info.full_path, new_content) {
-                Ok(_) => TemplateBuildResult::OkRes((), state),
-                Err(err) => TemplateBuildResult::GeneralError(format!("{:?}",err.to_string()))
-            }
-        },
-        Err(err) => TemplateBuildResult::GeneralError(err.to_string())
+                match std::fs::write(f_info.file_info.full_path, new_content) {
+                    Ok(_) => (),
+                    Err(err) => return TemplateBuildResult::GeneralError(format!("{:?}",err.to_string()))
+                }
+            },
+            Err(err) => return TemplateBuildResult::GeneralError(err.to_string())
+        }
     }
+
+    return TemplateBuildResult::OkRes((), state);
 }
 
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>, new_name: &String) -> std::io::Result<()> {
@@ -53,8 +58,12 @@ fn get_contents_all(src: impl AsRef<Path>, info_vec: &mut Vec<ChangeFileInfo>, s
                 };
                 let curr_change_file_info = 
                     ChangeFileInfo {
-                        search_pattern:r"(using WebApiTemplate|namespace WebApiTemplate).*".to_string(),
-                        str_to_replace: state.name.clone(),
+                        change_infos: vec![
+                            ChangePatternInfo { 
+                                search_pattern:r"(using WebApiTemplate|namespace WebApiTemplate).*".to_string(),
+                                str_to_replace: state.name.clone(),
+                            }
+                        ],
                         file_info
                     };
                 info_vec.push(curr_change_file_info);
@@ -67,8 +76,12 @@ fn get_contents_all(src: impl AsRef<Path>, info_vec: &mut Vec<ChangeFileInfo>, s
                 };
                 let curr_change_file_info = 
                     ChangeFileInfo {
-                        search_pattern:r"Include=.*".to_string(),
-                        str_to_replace: state.name.clone(),
+                        change_infos: vec![
+                            ChangePatternInfo { 
+                                search_pattern:r"(using WebApiTemplate|namespace WebApiTemplate).*".to_string(),
+                                str_to_replace: state.name.clone(),
+                            }
+                        ],
                         file_info
                     };
                 info_vec.push(curr_change_file_info);
@@ -81,8 +94,12 @@ fn get_contents_all(src: impl AsRef<Path>, info_vec: &mut Vec<ChangeFileInfo>, s
                 };
                 let curr_change_file_info = 
                     ChangeFileInfo {
-                        search_pattern:r"Project\(.*".to_string(),
-                        str_to_replace: state.name.clone(),
+                        change_infos: vec![
+                            ChangePatternInfo { 
+                                search_pattern:r"Project\(.*".to_string(),
+                                str_to_replace: state.name.clone(),
+                            }
+                        ],
                         file_info
                     };
                 info_vec.push(curr_change_file_info);

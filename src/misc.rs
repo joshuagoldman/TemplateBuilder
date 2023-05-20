@@ -5,6 +5,16 @@ use crate::definitions::*;
 use crate::add_to_template::*;
 use crate::new_template::*;
 
+pub fn replace_content_w_state(content: String, state: BaseAddModel) -> String {
+    content.replace("<<<CONTROLLER>>>", &state.controller.value).to_string()
+        .replace("<<<SERVICE>>>", &state.service.value).to_string()
+        .replace("<<<METHOD>>", &state.method.value).to_string()
+}
+
+pub fn curr_pos_err_format(fn_name: String, fn_file: String, line: String) -> String {
+    format!("error at file {}, function {}, line number {}", fn_file, fn_name, line)
+}
+
 pub fn get_optional_arg(arg_name: String, args: Vec<String>) -> Option<String> {
    match check_if_arg_exists(arg_name, args) {
        TemplateBuildResult::OkRes(arg_val,_) => Some(arg_val.value),
@@ -26,6 +36,7 @@ pub fn args_decide_action( first_arg: String, args: Vec<String>) -> TemplateBuil
                 .into_iter().map(|x| x.to_string()).collect();
 
             get_many_args(arg_names, args)
+                .bind(do_all_file_actions)
                 .id()
                 .ignore();
 
